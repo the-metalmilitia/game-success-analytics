@@ -1,7 +1,7 @@
 from data_loader import DataLoader
 from data_profiler import DataProfiler
 from eda import EDA
-from config import RAW_DATA_DIR
+from config import RAW_DATA_DIR, OUTPUT_DIR
 
 def main():
 
@@ -17,7 +17,8 @@ def main():
     eda.analyse_duplicate_data()
     eda.analyse_categorical_data()
     eda.analyse_target_variables()
-    eda.correlation_matrix()
+    eda.correlation_matrix(str(OUTPUT_DIR))
+    eda.business_observations_visualizations(str(OUTPUT_DIR))
     
 
 if __name__ == '__main__':
