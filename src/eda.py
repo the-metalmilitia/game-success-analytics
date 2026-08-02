@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import ast
 
 class EDA:
 
@@ -41,7 +42,7 @@ class EDA:
 
     def analyse_duplicate_data(self):
         duplicates = self.df[self.df.duplicated()]
-        print(duplicates)
+        print('\n',duplicates)
 
 
     def analyse_categorical_data(self):
@@ -59,7 +60,7 @@ class EDA:
 
     def analyse_target_variables(self):
 
-        cols = ['rating', 'ratings_count', 'metacritic', 'reviews_count']
+        cols = ['positive', 'negative', 'price', 'achievements', 'peak_ccu', 'average_playtime_forever']
 
         for col in cols:
             balance = self.df[col].value_counts(normalize=True)
@@ -71,88 +72,122 @@ class EDA:
 
 
     def correlation_matrix(self, path: str):
-        selected_cols = ['rating', 'ratings_count', 'playtime', 'reviews_count', 'added_status_yet', 'added_status_beaten', 'added_status_toplay']
+        selected_cols = ['positive', 'negative', 'median_playtime_forever', 'peak_ccu', 'genres', 'tags', 'recommendations']
         corr = self.df[selected_cols].corr(numeric_only=True)
         print(corr)
 
         plt.figure(figsize=(8, 6))
         sns.heatmap(corr, annot=True, cmap='coolwarm')
+        plt.tight_layout()
         plt.savefig(f'{path}/figures/corr_heatmap.png')
         plt.show()
 
 
+    def column_to_dict_converter(self, column_name: str) -> dict:
+        self.df[f'{column_name}_literal'] = self.df[column_name].apply(lambda x: tuple(ast.literal_eval(x)))
+        values = self.df[f'{column_name}_literal'].value_counts()
+
+        values_dict = {}
+        for all_values in values.index:
+            if isinstance(all_values, tuple):
+                for val in all_values:
+                    if not isinstance(val, dict):
+                        if val in values_dict:
+                            values_dict[val] += 1
+                        else:
+                            values_dict[val] = 1
+
+        print('\n', column_name)
+        print(values_dict)
+        return values_dict
+
+
     def business_observations_visualizations(self, path: str):
-        ratings = self.df['rating'].value_counts()
-        genres = self.df['genres'].value_counts().head(10)
-        missing_values = self.df.isnull().sum()
-        platforms = self.df['platforms'].value_counts()
 
-        separator = '||'
+        ## Key business observations for columns Tag, Developers, Publishers and Categories
+        tags = self.column_to_dict_converter('tags')
+        tags = dict(sorted(tags.items(), key=lambda x: x[1], reverse=True))
 
-        genres_dict = {}
-        for all_genres in genres.index:
-            if separator in all_genres:
-                genre = all_genres.split(separator)
-                for g in genre:
-                    if g in genres_dict:
-                        genres_dict[g] += genres[all_genres]
-                    else:
-                        genres_dict[g] = genres[all_genres]
+        developers = self.column_to_dict_converter('developers')
+        developers = dict(sorted(developers.items(), key=lambda x: x[1], reverse=True))
 
-        platforms_dict = {}
-        for plats in platforms.index:
-            if separator in plats:
-                plat = plats.split(separator)
-                for p in plat:
-                    if p in platforms_dict:
-                        platforms_dict[p] += platforms[plats]
-                    else:
-                        platforms_dict[p] = platforms[plats]
+        publishers = self.column_to_dict_converter('publishers')
+        publishers = dict(sorted(publishers.items(), key=lambda x: x[1], reverse=True))
 
+        categories = self.column_to_dict_converter('categories')
+        categories = dict(sorted(categories.items(), key=lambda x: x[1], reverse=True))
 
-        print(platforms_dict)
+        ##Visualization of Top 20 Genres with highest ratings (+ive or -ive)
+        ratings_by_genres = self.df[['genres', 'positive', 'negative']].copy()
+        ratings_by_genres['sum_of_all_ratings'] = ratings_by_genres['positive'] + ratings_by_genres['negative']
+        ratings_by_genres = ratings_by_genres.sort_values(by='sum_of_all_ratings', ascending=False)
+        ratings_by_genres['avg_ratings'] = round(100 * ratings_by_genres['positive'] / (ratings_by_genres['positive'] + ratings_by_genres['negative']), 2)
 
-        fig, axes = plt.subplots(2, 2, figsize=(25,25))
-        axes[0, 0].bar(ratings.index, ratings)
-        axes[0, 0].set_xlabel('Ratings')
-        axes[0, 0].set_ylabel('Counts')
-        axes[0, 0].set_title('Ratings Distribution')
+        ratings_by_genres['genres'] = ratings_by_genres['genres'].apply(lambda x: tuple(ast.literal_eval(x)))
+        ratings_by_genres = ratings_by_genres[ratings_by_genres['genres'].apply(lambda x: len(x) > 0 and not isinstance(x[0], dict))]
+        ratings_per_genre = ratings_by_genres.explode('genres').groupby('genres')['avg_ratings'].median().sort_values(ascending=False)
 
-        axes[0, 1].barh(list(genres_dict.keys()), list(genres_dict.values()))
-        axes[0, 1].set_xlabel('Counts')
-        axes[0, 1].set_ylabel('Genres')
-        axes[0, 1].tick_params(axis='y', labelsize=8)
-        axes[0, 1].set_title('Top 10 Genres')
-
-        axes[1, 0].barh(missing_values.index, missing_values)
-        axes[1, 0].set_xlabel('Count')
-        axes[1, 0].set_ylabel('Columns')
-        axes[1, 0].tick_params(axis='y', labelsize=8)
-        axes[1, 0].set_title('Missing Values Per Column')
-
-
-        axes[1, 1].barh(list(platforms_dict.keys()), list(platforms_dict.values()))
-        axes[1, 1].set_xlabel('Platforms')
-        axes[1, 1].set_ylabel('Count')
-        axes[1, 1].tick_params(axis='y', labelsize=6)
-        axes[1, 1].set_title('Platforms Distribution')
-
-        plt.grid(True)
-        plt.savefig(f'{path}/figures/eda_viz.png')
+        ax = ratings_per_genre.head(20).plot.bar()
+        ax.set_xlabel('Genres')
+        ax.set_ylabel('Average Ratings')
+        ax.set_title('Top Genres')
+        ax.tick_params(axis='x', labelsize=8)
+        plt.tight_layout()
+        plt.savefig(f'{path}/figures/EDA_Top_Genres.png')
         plt.show()
 
-        missing_values_sorted = missing_values.sort_values(ascending=False)
-        with open(f'{path}/reports/business_observation.md', 'w') as file:
+        ##Visualization of median playtime forever
+        playtime = self.df[['median_playtime_forever', 'name']].copy()
+        playtime = playtime.sort_values(by='median_playtime_forever', ascending=False).head(20)
+
+        plt.barh(playtime['name'], playtime['median_playtime_forever'])
+        plt.xlabel('Median Playtime')
+        plt.ylabel('Game')
+        plt.title('Top Played Games')
+        plt.tight_layout()
+        plt.savefig(f'{path}/figures/EDA_Top_PlayedGames.png')
+        plt.show()
+
+        #missing values
+        missing_values = self.df.isnull().sum().sort_values(ascending=False).head(10)
+        ax = missing_values.plot.barh()
+        ax.set_xlabel('Count')
+        ax.set_ylabel('Columns')
+        ax.set_title('Top 10 Missing Values Per Column')
+        plt.tight_layout()
+        plt.savefig(f'{path}/figures/EDA_Columns_Missing_Values.png')
+        plt.show()
+
+        #top categories
+        categories = dict(sorted(categories.items(), key=lambda x: x[1], reverse=True)[:20])
+        plt.barh(list(categories.keys()), list(categories.values()))
+        plt.xlabel('Categories')
+        plt.ylabel('Count')
+        plt.title('Top Categories')
+
+        plt.tight_layout()
+        plt.savefig(f'{path}/figures/EDA_Top_Categories.png')
+        plt.show()
+
+        with open(f'{path}/reports/business_observation.md', 'w', encoding='utf-8') as file:
             file.write(f"""
-A correlation matrix created for a few selected columns provides a great picture where reviews are very closely related to status_beaten, but also status_yet.
-On the other hand, playtime seems to have very less to do with ratings or even anything else.
 
-In other observations, the first figure in the eda_viz.png shows the ratings skewed to right with most ratings falling around {ratings.idxmax()} stars, while the lowest ratings around {ratings.idxmin()}.
+Some of the most common tags are as follows:
+{list(tags.keys())[:5]}
 
-In genres, {max(genres_dict, key=genres_dict.get)} turns out to be the most popular choice for developers and {min(genres_dict, key=genres_dict.get)} as the least.
+The most common developers on the list are:
+{list(developers.keys())[:5]}
 
-{max(platforms_dict, key=platforms_dict.get)} has been the most favourite choice of the developers to launch a game and {min(platforms_dict, key=platforms_dict.get)} has not seen to much of an action.
+While the most common publishers are:
+{list(publishers.keys())[:5]}
 
-Coming to the point of missing values, the 3 following have the most missing values, given with the missing values count:
-{missing_values_sorted.head(3)}
+A correlation matrix created for a few selected columns provides a great picture where ratings are closely associated with recommendations and peak CCU, but almost not at all with playtime.
+
+In other observations, the first figure in the visualization shows the top 20 genres, with the top genre containing {list(ratings_per_genre.keys())[0]} as it's keyword.
+
+In top played games, in the next visualization, {playtime['name'].iloc[0]} has the highest playtime at {playtime['median_playtime_forever'].iloc[0]}
+
+Coming to the point of missing values {missing_values.iloc[0]} has the highest missing values
+
+Lastly, the top categories are shows in the last visualization with, {next(iter(categories))} as the top one.
             """)
