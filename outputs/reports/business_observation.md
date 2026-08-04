@@ -1,21 +1,15 @@
 
-
-Some of the most common tags are as follows:
-['Singleplayer', 'Indie', 'Action', 'Casual', 'Adventure']
-
-The most common developers on the list are:
-['Tero Lunkka', 'ESAT', 'Square Enix', 'Valkeala Software', 'Jordan Freeman Group']
-
-While the most common publishers are:
-['Gamersky Games', 'PlayWay S.A.', 'WhisperGames', 'Gamirror Games', 'Plug In Digital']
-
 A correlation matrix created for a few selected columns provides a great picture where ratings are closely associated with recommendations and peak CCU, but almost not at all with playtime.
 
-In other observations, the first figure in the visualization shows the top 20 genres, with the top genre containing 360 Video as it's keyword.
+Among missing values, metacritic_url has the most missing values which means the metacritic score cannot unfortunately be used in figuring out the most played, most loved games in this dataset.
 
-In top played games, in the next visualization, Avem33 has the highest playtime at 3429544
+There are 2 separate columns for ratings, one for positive and the other for negative, which can be combined or used separately to calculate the best games and the worst.
 
-Coming to the point of missing values 132206 has the highest missing values
+There are separate columns for tags, genres and categories, which means we can do a more elaborate judgement on what all does one need for making a great game.
 
-Lastly, the top categories are shows in the last visualization with, Single-player as the top one.
+On applying some log calculations and wilson score to the average of positive and negative reviews along with average number of owners per game, Crab Game and Black Myth: Wukong turn out to be most favourite at the moment.
+Top genres include keywords such as Web Publishing, Photo Editing, Action, Indie, RPG, etc. along with training, design and production tools, as well as, interestingly, nudity & sexual content.
+
+The top most category by far is any game that has Valve's Anti-Cheat enabled. This is followed by Steam's trading cards and remote play on tablet. There are multiple remote playing, VR and Steam associated features included.
+On the other hand, if you see Most Common Categories, they do match with the Top Categories somewhere, but not so much. This means that all the top games abide very much by the frameworks set by Steam.
             

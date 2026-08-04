@@ -12,10 +12,11 @@ def main():
     data_profiler.profile(df)
 
     eda = EDA(df)
-    # eda.analyse_numeric_overview()
-    # eda.analyse_missing_data()
-    # eda.analyse_duplicate_data()
-    # eda.analyse_target_variables()
+    eda.analyse_numeric_overview()
+    eda.analyse_categorical_data()
+    eda.analyse_missing_data()
+    eda.analyse_duplicate_data()
+    eda.analyse_target_variables()
     eda.correlation_matrix(str(OUTPUT_DIR))
     eda.business_observations_visualizations(str(OUTPUT_DIR))
     
