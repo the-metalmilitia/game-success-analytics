@@ -19,7 +19,7 @@ class DataProfiler:
         print('\nData Types')
         print(df.dtypes)
 
-        print('\nMissing Values')
+        print(f'\nMissing Values (out of {len(df)})')
         print(df.isnull().sum())
 
         print(f'\nDuplicate Values: {df.duplicated().sum()}')
