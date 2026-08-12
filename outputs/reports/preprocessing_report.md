@@ -7,16 +7,12 @@ The purpose of this project is to be able to predict how a game can be successfu
 
 # Prediction Target
 To make a game successful, a few factors matter. We will try to predict these very factors in this project, given as follows:
-- Positive
-- Negative
-- Recommendations
-- Estimated Owners
-- Median Playtime Forever
-
-        
+Model A predicts commercial success: estimated_owners
+Model B predicts critical success: review_score
 
 
-        # Column-wise feature audit and removal
+
+# Column-wise feature audit and removal
 
 Column                                  Keep                                  Reason
 --------------------------------------------------------------------------------------
@@ -25,22 +21,22 @@ name                                     ❌                             Game na
 release_date                             ❌                             Game's release date
 price                                    ✅                             To see Price's affect on owners and ratings
 price_status                             ❌                             Very similar to price.
-estimated_owners                         ✅                             To test and to predict how many owners could a game have
+estimated_owners                         ❌                             Cannot be known for an unreleased game. Will result in data leakage
 developers                               ❌                             Just Developer names
-publishers                               ✅                             Publisher names could matter
+publishers                               ❌                             Publisher names would influence prediction which would be unfair for indie games
 genres                                   ✅                             Testing and predicting how genres affect game success
 categories                               ✅                             Testing and predicting which categories affect game success
 tags                                     ✅                             Testing and predicting which tags affect game success
-positive                                 ✅                             Testing and predicting a game's ratings
-negative                                 ✅                             Testing and predicting a game's ratings
+positive                                 ❌                             Cannot be known for an unreleased game. Will result in data leakage
+negative                                 ❌                             Cannot be known for an unreleased game. Will result in data leakage
 recommendations                          ❌                             A lost of games missing data
-peak_ccu                                 ✅                             Concurrent User count not required
+peak_ccu                                 ❌                             Concurrent User count not required
 metacritic_score                         ❌                             Most games missing data
 user_score                               ❌                             User score is 0 for every game.
-average_playtime_forever                 ✅                             Playtime needs to be tested as well as predicted
-median_playtime_forever                  ✅                             Playtime needs to be tested as well as predicted
-average_playtime_2weeks                  ✅                             Playtime needs to be tested as well as predicted
-median_playtime_2weeks                   ✅                             Playtime needs to be tested as well as predicted
+average_playtime_forever                 ❌                             Cannot be known for an unreleased game. Will result in data leakage
+median_playtime_forever                  ❌                             Cannot be known for an unreleased game. Will result in data leakage
+average_playtime_2weeks                  ❌                             Cannot be known for an unreleased game. Will result in data leakage
+median_playtime_2weeks                   ❌                             Cannot be known for an unreleased game. Will result in data leakage
 short_description                        ❌                             Game description not required
 about_the_game                           ❌                             About section of a game not required
 detailed_description                     ❌                             Game description not required
@@ -76,18 +72,9 @@ Column                                      Missing Rows (out of 136491)
 achievements                                            17152
 steam_store_available                                       0
 steam_spy_available                                         0
-average_playtime_forever                                    0
-median_playtime_forever                                     0
-average_playtime_2weeks                                     0
-median_playtime_2weeks                                      0
-peak_ccu                                                    0
-publishers                                                  0
 genres                                                      0
 categories                                                  0
 tags                                                        0
-positive                                                    0
-negative                                                    0
-estimated_owners                                            0
 price                                                       19
 
 Given that most of the columns chosen for training actually have all the values, we can drop Achievements column and 
@@ -99,5 +86,5 @@ There are 0 invalid and duplicate entries in the selected columns.
 
         #Final Data Details
 
-Final Dataset shape: (136491, 16)
+Final Dataset shape: (136491, 6)
 New data saved at: D:\Projects\Python\game-success-analytics\data\processed\steam_games_cleaned.csv

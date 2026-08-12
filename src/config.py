@@ -13,3 +13,5 @@ FIGURE_DIR = OUTPUT_DIR / "figures"
 MODEL_DIR = ROOT_DIR / "models"
 
 RANDOM_SEED = 42
+
+USABLE_DATASET_COLUMNS = {'steam_store_available': bool, 'steam_spy_available': bool, 'genres': str, 'categories': str, 'tags': str, 'price': float}
