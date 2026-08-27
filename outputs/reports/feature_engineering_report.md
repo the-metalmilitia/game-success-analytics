@@ -78,3 +78,34 @@ Model A takes avg_owners as Y axis, which is what we have to predict for commerc
 Model B takes review_score as Y axis, which is to be predicted for critical success.
 
 An R2 accuracy of more than 65 or 70, should be a decent acceptance point.
+
+        
+
+## Model Commercial Success Feature Importance Results
+        Top 10 Features:
+        
+price: 35.711%
+game_age: 31.270%
+tags_Singleplayer: 7.215%
+supported_languages_count: 5.165%
+tags_Action: 2.521%
+tags_Casual: 1.290%
+release_month: 0.817%
+categories_Single-player: 0.682%
+categories_Steam Trading Cards: 0.596%
+categories_Steam Achievements: 0.594%
+        
+
+## Model Critical Success Feature Importance Results
+        Top 10 Features:
+        
+tags_Singleplayer: 25.168%
+game_age: 19.116%
+tags_Action: 8.093%
+tags_Casual: 4.816%
+tags_Adventure: 3.047%
+categories_Steam Achievements: 2.844%
+price: 2.561%
+release_month: 1.477%
+tags_Strategy: 1.372%
+supported_languages_count: 1.367%
