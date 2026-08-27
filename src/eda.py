@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import ast
 import numpy as np
+from utils.util_functions import extract_literal_values, wilson_lower_bound, parse_average_owners
 
 class EDA:
 
@@ -84,38 +85,38 @@ class EDA:
         plt.show()
 
 
-    def extract_literal_values(self, column_name: str) -> dict:
-        self.df[f'{column_name}_literal'] = self.df[column_name].apply(lambda x: tuple(ast.literal_eval(x)))
-        values = self.df[f'{column_name}_literal'].value_counts()
+    # def extract_literal_values(self, column_name: str) -> dict:
+    #     self.df[f'{column_name}_literal'] = self.df[column_name].apply(lambda x: tuple(ast.literal_eval(x)))
+    #     values = self.df[f'{column_name}_literal'].value_counts()
 
-        values_dict = {}
-        for all_values in values.index:
-            if isinstance(all_values, tuple):
-                for val in all_values:
-                    if not isinstance(val, dict):
-                        if val in values_dict:
-                            values_dict[val] += 1
-                        else:
-                            values_dict[val] = 1
+    #     values_dict = {}
+    #     for all_values in values.index:
+    #         if isinstance(all_values, tuple):
+    #             for val in all_values:
+    #                 if not isinstance(val, dict):
+    #                     if val in values_dict:
+    #                         values_dict[val] += 1
+    #                     else:
+    #                         values_dict[val] = 1
 
-        return values_dict
+    #     return values_dict
 
-    def parse_average_owners(self, owner_string: str):
-        # owner_string = str(owner_numbers)
-        owner_substrings = owner_string.split(' - ')
-        if len(owner_substrings) > 1 and owner_substrings[0] and owner_substrings[1]:
-            floor_count = int(owner_substrings[0])
-            ceiling_count = int(owner_substrings[1])
-            avg_owners = (floor_count + ceiling_count) / 2
-            return np.log1p(avg_owners)
+    # def parse_average_owners(self, owner_string: str):
+    #     # owner_string = str(owner_numbers)
+    #     owner_substrings = owner_string.split(' - ')
+    #     if len(owner_substrings) > 1 and owner_substrings[0] and owner_substrings[1]:
+    #         floor_count = int(owner_substrings[0])
+    #         ceiling_count = int(owner_substrings[1])
+    #         avg_owners = (floor_count + ceiling_count) / 2
+    #         return np.log1p(avg_owners)
 
 
-    def wilson_lower_bound(self, pos, neg, z=1.96):
-        n = pos + neg
-        if n == 0:
-            return 0
-        p = pos / n
-        return (p + z**2/(2*n) - z * np.sqrt((p*(1-p) + z**2/(4*n)) / n)) / (1 + z**2/n)
+    # def wilson_lower_bound(self, pos, neg, z=1.96):
+    #     n = pos + neg
+    #     if n == 0:
+    #         return 0
+    #     p = pos / n
+    #     return (p + z**2/(2*n) - z * np.sqrt((p*(1-p) + z**2/(4*n)) / n)) / (1 + z**2/n)
 
     def save_figure(self, path: str):
         plt.tight_layout()
@@ -126,15 +127,15 @@ class EDA:
     def business_observations_visualizations(self, path: str):
 
         ## Key business observations for columns Tag, Developers, Publishers and Categories
-        tags = self.extract_literal_values('tags')
+        tags = extract_literal_values(self.df, 'tags')
         tags = dict(sorted(tags.items(), key=lambda x: x[1], reverse=True))
         print('\nMost Common Tags: ', list(tags.keys())[:20])
 
-        developers = self.extract_literal_values('developers')
+        developers = extract_literal_values(self.df, 'developers')
         developers = dict(sorted(developers.items(), key=lambda x: x[1], reverse=True))
         print('\nMost Common Developers: ', list(developers.keys())[:20])
 
-        publishers = self.extract_literal_values('publishers')
+        publishers = extract_literal_values(self.df, 'publishers')
         publishers = dict(sorted(publishers.items(), key=lambda x: x[1], reverse=True))
         print('\nMost Common Publishers: ', list(publishers.keys())[:20])
 
@@ -146,16 +147,16 @@ class EDA:
 
 
 
-    def plot_top_fav_genres(self, path, estimated_owners_games):
+    def plot_top_fav_genres(self, path, df):
         #top genres based on actual favourites
-        estimated_owners_games['genres'] = estimated_owners_games['genres'].apply(lambda x: tuple(ast.literal_eval(x)))
-        estimated_owners_games['categories'] = estimated_owners_games['categories'].apply(lambda x: tuple(ast.literal_eval(x)))
+        df['genres'] = df['genres'].apply(lambda x: tuple(ast.literal_eval(x)))
+        df['categories'] = df['categories'].apply(lambda x: tuple(ast.literal_eval(x)))
 
-        estimated_owners_games = estimated_owners_games[estimated_owners_games['genres'].apply(lambda x: len(x) > 0 and not isinstance(x[0], dict))]
-        estimated_owners_games = estimated_owners_games[estimated_owners_games['categories'].apply(lambda x: len(x) > 0 and not isinstance(x[0], dict))]
+        df = df[df['genres'].apply(lambda x: len(x) > 0 and not isinstance(x[0], dict))]
+        df = df[df['categories'].apply(lambda x: len(x) > 0 and not isinstance(x[0], dict))]
 
-        fav_per_genre = estimated_owners_games.explode('genres').groupby('genres')['fav_score'].median().sort_values(ascending=False)
-        fav_per_category = estimated_owners_games.explode('categories').groupby('categories')['fav_score'].median().sort_values(ascending=False)
+        fav_per_genre = df.explode('genres').groupby('genres')['fav_score'].median().sort_values(ascending=False)
+        fav_per_category = df.explode('categories').groupby('categories')['fav_score'].median().sort_values(ascending=False)
 
         ax = fav_per_genre.head(20).plot.bar()
         ax.set_xlabel('Genres')
@@ -191,7 +192,7 @@ On the other hand, if you see Most Common Categories, they do match with the Top
 
     def plot_most_common_categories(self, path):
         #most common categories
-        categories = self.extract_literal_values('categories')
+        categories = extract_literal_values(self.df, 'categories')
         categories = dict(sorted(categories.items(), key=lambda x: x[1], reverse=True))
         print('\nMost Common Tags: ', list(categories.keys())[:20])
         categories = dict(sorted(categories.items(), key=lambda x: x[1], reverse=True)[:20])
@@ -213,8 +214,8 @@ On the other hand, if you see Most Common Categories, they do match with the Top
     def plot_actual_favourites(self, path):
         #Visualizing actual favourite games.
         estimated_owners_games = self.df[['name', 'estimated_owners', 'genres', 'categories', 'positive', 'negative', 'median_playtime_2weeks']].copy()
-        estimated_owners_games['estimated_owners_log'] = estimated_owners_games['estimated_owners'].astype("string").apply(lambda x: self.parse_average_owners(x))
-        estimated_owners_games['avg_ratings'] = estimated_owners_games.apply(lambda x: self.wilson_lower_bound(x['positive'], x['negative']), axis=1)
+        estimated_owners_games['estimated_owners_log'] = estimated_owners_games['estimated_owners'].astype("string").apply(lambda x: parse_average_owners(x))
+        estimated_owners_games['avg_ratings'] = estimated_owners_games.apply(lambda x: wilson_lower_bound(x['positive'], x['negative']), axis=1)
         # estimated_owners_games['avg_ratings'] = round(100 * estimated_owners_games['positive'] / (estimated_owners_games['positive'] + estimated_owners_games['negative']), 2)
         estimated_owners_games['avg_ratings_log'] = np.log1p(estimated_owners_games['avg_ratings'])
         estimated_owners_games['median_playtime_2weeks_log'] = np.log1p(estimated_owners_games['median_playtime_2weeks'])

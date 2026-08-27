@@ -14,4 +14,7 @@ MODEL_DIR = ROOT_DIR / "models"
 
 RANDOM_SEED = 42
 
-USABLE_DATASET_COLUMNS = {'steam_store_available': bool, 'steam_spy_available': bool, 'genres': str, 'categories': str, 'tags': str, 'price': float}
+USABLE_DATASET_COLUMNS = {'estimated_owners': str, 'negative': int, 'positive': int, 'release_date': str, 'supported_languages': str, 'genres': str, 'categories': str, 'tags': str, 'price': float}
+
+GAME_PRICE_BIN = [0.0, 1.0, 10.0, 30.0, 49.99]
+GAME_PRICE_LABELS = ['Free To Play', 'Micro Indie', 'Standard Tier', 'Upper Tier']

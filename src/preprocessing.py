@@ -2,25 +2,13 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from config import USABLE_DATASET_COLUMNS
+from utils.reportwriter import ReportWriter
 
 class PreProcessor:
     def __init__(self, target_df: pd.DataFrame, report_path: Path):
+        self.reportWriter = ReportWriter(report_path)
         self.df = target_df
         self.cleaned_df = target_df
-        self.report_path = report_path
-        self._clean_report_file()
-
-
-#Wipes out the report text file and starts anew
-    def _clean_report_file(self):
-        with open(self.report_path, 'w', encoding='utf-8') as file:
-            pass
-
-
-#appends next content to the report
-    def _append_to_report(self, content: str):
-        with open(self.report_path, 'a', encoding='utf-8') as file:
-            file.write(content)
 
 
 #Reporting prediction target
@@ -35,7 +23,7 @@ To make a game successful, a few factors matter. We will try to predict these ve
 Model A predicts commercial success: estimated_owners
 Model B predicts critical success: review_score
 """
-        self._append_to_report(content)
+        self.reportWriter.append_to_report(content)
 
 
 
@@ -48,17 +36,17 @@ Column                                  Keep                                  Re
 --------------------------------------------------------------------------------------
 app_id                                   ❌                             App identifier
 name                                     ❌                             Game name
-release_date                             ❌                             Game's release date
+release_date                             ✅                             Game's release date. Useful to see trends every year/month
 price                                    ✅                             To see Price's affect on owners and ratings
 price_status                             ❌                             Very similar to price.
-estimated_owners                         ❌                             Cannot be known for an unreleased game. Will result in data leakage
+estimated_owners                         ✅                             Needd as a target to train the model on commercial success
 developers                               ❌                             Just Developer names
 publishers                               ❌                             Publisher names would influence prediction which would be unfair for indie games
 genres                                   ✅                             Testing and predicting how genres affect game success
 categories                               ✅                             Testing and predicting which categories affect game success
 tags                                     ✅                             Testing and predicting which tags affect game success
-positive                                 ❌                             Cannot be known for an unreleased game. Will result in data leakage
-negative                                 ❌                             Cannot be known for an unreleased game. Will result in data leakage
+positive                                 ✅                             Needed as a target for training the model on critical success.
+negative                                 ✅                             Needed as a target for training the model on critical success.
 recommendations                          ❌                             A lost of games missing data
 peak_ccu                                 ❌                             Concurrent User count not required
 metacritic_score                         ❌                             Most games missing data
@@ -74,7 +62,7 @@ notes                                    ❌                             Notes n
 achievements                             ✅                             Achievement count needs to be evaluated on a game's performance
 dlc_count                                ❌                             DLC counts not required
 packages                                 ❌                             Package counts not required
-supported_languages                      ❌                             Not required
+supported_languages                      ✅                             Languages could be useful to see if more languages affect 
 full_audio_languages                     ❌                             Not required
 windows                                  ❌                             Not required
 mac                                      ❌                             Not required
@@ -86,12 +74,12 @@ website                                  ❌                             Not req
 support_url                              ❌                             Not required
 support_email                            ❌                             Not required
 metacritic_url                           ❌                             Not required
-steam_store_available                    ✅                             Needs to be evaluated for a game's performance on Steam
-steam_spy_available                      ✅                             Needs to be evaluated for a game's performance on Steam
+steam_store_available                    ❌                             Not required. All values are true.
+steam_spy_available                      ❌                             Not required. All values are true.
 \n\n
 """
 
-        self._append_to_report(content)
+        self.reportWriter.append_to_report(content)
 
 
 #Detailed invalid data reporting and cleaning.
@@ -108,18 +96,20 @@ For Price especially, a further calculation shows much lesser values as only {mi
 
 Column                                      Missing Rows (out of {self.df.shape[0]})
 achievements                                            17152
-steam_store_available                                       0
-steam_spy_available                                         0
+positive                                                    0
+negative                                                    0
+estimated_owners                                            0
 genres                                                      0
 categories                                                  0
 tags                                                        0
+supported_languages                                         0
 price                                                       {missing_prices_df.shape[0]}
 
 Given that most of the columns chosen for training actually have all the values, we can drop Achievements column and 
 feed an average price in the rows for the {missing_prices_df.shape[0]} paid games missing price values.
 """
 
-        self._append_to_report(content)
+        self.reportWriter.append_to_report(content)
 
         #Dropping Achievements column since a lot of values are missing and it's not necessary for the modelling.
         print('Dropping Achievements column...')
@@ -145,7 +135,7 @@ feed an average price in the rows for the {missing_prices_df.shape[0]} paid game
 There are 0 invalid and duplicate entries in the selected columns.
 """
 
-        self._append_to_report(content)
+        self.reportWriter.append_to_report(content)
 
 
 
@@ -157,5 +147,5 @@ There are 0 invalid and duplicate entries in the selected columns.
 Final Dataset shape: {self.cleaned_df.shape}
 New data saved at: {path}
 """
-        self._append_to_report(content)
-        self.cleaned_df.to_csv(path)
+        self.reportWriter.append_to_report(content)
+        self.cleaned_df.to_csv(path, index=False)

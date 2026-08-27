@@ -18,17 +18,17 @@ Column                                  Keep                                  Re
 --------------------------------------------------------------------------------------
 app_id                                   ❌                             App identifier
 name                                     ❌                             Game name
-release_date                             ❌                             Game's release date
+release_date                             ✅                             Game's release date. Useful to see trends every year/month
 price                                    ✅                             To see Price's affect on owners and ratings
 price_status                             ❌                             Very similar to price.
-estimated_owners                         ❌                             Cannot be known for an unreleased game. Will result in data leakage
+estimated_owners                         ✅                             Needd as a target to train the model on commercial success
 developers                               ❌                             Just Developer names
 publishers                               ❌                             Publisher names would influence prediction which would be unfair for indie games
 genres                                   ✅                             Testing and predicting how genres affect game success
 categories                               ✅                             Testing and predicting which categories affect game success
 tags                                     ✅                             Testing and predicting which tags affect game success
-positive                                 ❌                             Cannot be known for an unreleased game. Will result in data leakage
-negative                                 ❌                             Cannot be known for an unreleased game. Will result in data leakage
+positive                                 ✅                             Needed as a target for training the model on critical success.
+negative                                 ✅                             Needed as a target for training the model on critical success.
 recommendations                          ❌                             A lost of games missing data
 peak_ccu                                 ❌                             Concurrent User count not required
 metacritic_score                         ❌                             Most games missing data
@@ -44,7 +44,7 @@ notes                                    ❌                             Notes n
 achievements                             ✅                             Achievement count needs to be evaluated on a game's performance
 dlc_count                                ❌                             DLC counts not required
 packages                                 ❌                             Package counts not required
-supported_languages                      ❌                             Not required
+supported_languages                      ✅                             Languages could be useful to see if more languages affect 
 full_audio_languages                     ❌                             Not required
 windows                                  ❌                             Not required
 mac                                      ❌                             Not required
@@ -56,8 +56,8 @@ website                                  ❌                             Not req
 support_url                              ❌                             Not required
 support_email                            ❌                             Not required
 metacritic_url                           ❌                             Not required
-steam_store_available                    ✅                             Needs to be evaluated for a game's performance on Steam
-steam_spy_available                      ✅                             Needs to be evaluated for a game's performance on Steam
+steam_store_available                    ❌                             Not required. All values are true.
+steam_spy_available                      ❌                             Not required. All values are true.
 
 
 
@@ -70,11 +70,13 @@ For Price especially, a further calculation shows much lesser values as only 19 
 
 Column                                      Missing Rows (out of 136491)
 achievements                                            17152
-steam_store_available                                       0
-steam_spy_available                                         0
+positive                                                    0
+negative                                                    0
+estimated_owners                                            0
 genres                                                      0
 categories                                                  0
 tags                                                        0
+supported_languages                                         0
 price                                                       19
 
 Given that most of the columns chosen for training actually have all the values, we can drop Achievements column and 
@@ -86,5 +88,5 @@ There are 0 invalid and duplicate entries in the selected columns.
 
         #Final Data Details
 
-Final Dataset shape: (136491, 6)
+Final Dataset shape: (136491, 9)
 New data saved at: D:\Projects\Python\game-success-analytics\data\processed\steam_games_cleaned.csv
