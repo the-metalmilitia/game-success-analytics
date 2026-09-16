@@ -1,6 +1,7 @@
 from data_loader import DataLoader
 from data_loader import pd
 from data_profiler import DataProfiler
+from model_development_comparision import ModelComparision
 from preprocessing import PreProcessor
 from eda import EDA
 from feature_engineering import FeatureEngineering
@@ -48,6 +49,15 @@ def feature_engineering():
 
     feature_eng.feature_importance(path=PROCESSED_DATA_DIR / 'features.csv')
 
+
+def xgb_model_investigation(model_compare: ModelComparision):
+    # xgb_investigation = ModelComparision(PROCESSED_DATA_DIR / 'features.csv', OUTPUT_DIR / 'reports/xgb_model_investigation.md')
+    model_compare.feature_importance_xgb()
+
+
+def build_rf_xgb(model_compare: ModelComparision):
+    model_compare.build_models()
+
 def main():
 
     data_loader = DataLoader(RAW_DATA_DIR / 'steam_games.csv')
@@ -57,13 +67,26 @@ def main():
     # data_profiler.profile(df)
 
 # #EDA with visualization and EDA report.
-    eda(df)
+    #eda(df)
 
 #Preprocessing
-    preprocessing(df)
+    #preprocessing(df)
 
 #Feature Engineering
-    feature_engineering()
+    #feature_engineering()
+
+#XGB Model Investigation
+    model_compare = ModelComparision(PROCESSED_DATA_DIR / 'features.csv', report_path=OUTPUT_DIR / 'reports/xgb_model_investigation.md')
+    xgb_model_investigation(model_compare)
+
+#Buildin & Comparing XGB and RF 0Models
+    build_rf_xgb(model_compare) 
+
+# result is
+# Model Commercial Success RF RF Accuracy: 0.7890185467921406
+# Model Critical Success RF RF Accuracy: 0.7302207834757064
+# Model Commercial Success XGB XGB Accuracy: 79.807%
+# Model Critical Success XGB XGB Accuracy: 74.512%
 
     
 

@@ -13,7 +13,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from utils.reportwriter  import ReportWriter
+from utils.reportwriter import ReportWriter
 
 
 class FeatureEngineering:
@@ -246,7 +246,7 @@ An R2 accuracy of more than 65 or 70, should be a decent acceptance point.
 
 
 #Correlation matrix
-    def correlation_matrix(self, column_names: list, path: str):
+    def correlation_matrix(self, column_names: list, path: Path):
         corr_df = self.df[column_names]
         corr_matrix = corr_df.corr()
         sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
