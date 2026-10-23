@@ -2,7 +2,7 @@ from pathlib import Path
 from datetime import datetime
 from sklearn.metrics import r2_score
 from utils.reportwriter import ReportWriter
-from config import GAME_PRICE_BIN, GAME_PRICE_LABELS
+from utils.config import GAME_PRICE_BIN, GAME_PRICE_LABELS
 from utils.util_functions import literal_values_per_row, wilson_lower_bound, parse_average_owners
 from sklearn.preprocessing import MultiLabelBinarizer
 from typing import cast
@@ -14,9 +14,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from utils.reportwriter import ReportWriter
+from utils.model_saver import Model_Saver
 
 
 class FeatureEngineering:
+
+    model_saver = Model_Saver()
+
     def __init__(self, target_cleaned_df_path: Path, report_path: Path) -> None:
         self.reportWriter = ReportWriter(report_path)
 
@@ -33,6 +37,7 @@ class FeatureEngineering:
         print(self.df[['price', 'price_category']].head())
         mlb = MultiLabelBinarizer(classes=GAME_PRICE_LABELS)
         binarized_array = cast(np.ndarray, mlb.fit_transform(self.df['price_category']))
+        self.model_saver.save_artifact(mlb, 'bin_prices')
         new_df = pd.DataFrame(binarized_array, columns=mlb.classes_, index=self.df.index).add_prefix(f'{'price_category'}_')
         print(f'{'price_category'} column count: {len(new_df.columns)}')
         self.df = self.df.join(new_df).drop(columns=['price_category'])
@@ -163,6 +168,7 @@ It will also be fed to the correlation matrix to have a look at the factors imme
             self.df = self.df.dropna(subset=[col], axis=0)
             mlb = MultiLabelBinarizer(classes=usable_classes)
             binarized_array = cast(np.ndarray, mlb.fit_transform(self.df[col]))
+            self.model_saver.save_artifact(mlb, col)
             new_df = pd.DataFrame(binarized_array, columns=mlb.classes_, index=self.df.index).add_prefix(f'{col}_')
             print(f'{col} column count: {len(new_df.columns)}')
             self.df = self.df.join(new_df).drop(columns=[col])
@@ -213,6 +219,8 @@ An R2 accuracy of more than 65 or 70, should be a decent acceptance point.
 
         print('\nX Columns:')
         print(X.columns)
+
+        self.model_saver.save_artifact(list(X.columns), 'feature_columns')
 
         if path:
             self._save_feature_csv(path)

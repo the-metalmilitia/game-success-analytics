@@ -5,7 +5,13 @@ from model_development_comparision import ModelComparision
 from preprocessing import PreProcessor
 from eda import EDA
 from feature_engineering import FeatureEngineering
-from config import RAW_DATA_DIR, OUTPUT_DIR, PROCESSED_DATA_DIR
+from utils.model_saver import Model_Saver
+from utils.config import RAW_DATA_DIR, OUTPUT_DIR, PROCESSED_DATA_DIR
+
+XGB_COMM = None
+XGB_CRIT = None
+RF_COMM = None
+RF_CRIT = None
 
 def eda(df: pd.DataFrame):
     eda = EDA(df)
@@ -54,8 +60,11 @@ def xgb_model_investigation(model_compare: ModelComparision):
     model_compare.feature_scoring_xgb()
 
 
-def build_rf_xgb(model_compare: ModelComparision):
-    model_compare.build_models()
+def build_rf_xgb(model_compare: ModelComparision, model_save: Model_Saver):
+    XGB_COMM, XGB_CRIT, RF_COMM, RF_CRIT = model_compare.build_models()
+    model_save.save_models(XGB_COMM, XGB_CRIT,
+                            OUTPUT_DIR/'models/commercial_model.joblib',
+                            OUTPUT_DIR/'models/critical_model.joblib')
 
 def main():
 
@@ -69,17 +78,18 @@ def main():
     #eda(df)
 
 #Preprocessing
-    #preprocessing(df)
+    preprocessing(df)
 
 #Feature Engineering
-    #feature_engineering()
+    feature_engineering()
 
 #XGB Model Investigation
     model_compare = ModelComparision(PROCESSED_DATA_DIR / 'features.csv', report_path=OUTPUT_DIR / 'reports/xgb_model_investigation.md')
     xgb_model_investigation(model_compare)
 
-#Buildin & Comparing XGB and RF 0Models
-    build_rf_xgb(model_compare)
+#Buildin & Comparing XGB and RF Models
+    model_save = Model_Saver()
+    build_rf_xgb(model_compare, model_save)
     
 
 if __name__ == '__main__':

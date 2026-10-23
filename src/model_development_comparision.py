@@ -61,6 +61,10 @@ Commercial Success Model RMSE: {xgb_score_commercial['rmse']:.3f}
 
 
     def build_models(self):
+        """
+        returns XGBoost Commercial, Critical, Random Forest Commercial & Critical models in sequence.
+        """
+        
         target_col_A = 'avg_owners'
         target_col_B = 'review_score'
 
@@ -68,20 +72,28 @@ Commercial Success Model RMSE: {xgb_score_commercial['rmse']:.3f}
         Y_critical = self.df[target_col_B]
         Y_commercial = self.df[target_col_A]
 
-        rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+        rf_model_comm = RandomForestRegressor(n_estimators=100, random_state=42)
+        rf_model_crit = RandomForestRegressor(n_estimators=100, random_state=42)
 
-        xgb_model = XGBRegressor(n_estimators=2000, max_depth=9,
+        xgb_model_comm = XGBRegressor(n_estimators=2000, max_depth=9,
                                     learning_rate=0.02,
                                     subsample=0.8,
                                     random_state=42,
                                     eval_metric='rmse',
                                     early_stopping_rounds=10)
 
-        rf_score_commercial = self.__rf_modelling__('Commercial Success RF', X, Y_commercial, rf_model)
-        rf_score_critical = self.__rf_modelling__('Critical Success RF', X, Y_critical, rf_model)
+        xgb_model_crit = XGBRegressor(n_estimators=2000, max_depth=9,
+                                            learning_rate=0.02,
+                                            subsample=0.8,
+                                            random_state=42,
+                                            eval_metric='rmse',
+                                            early_stopping_rounds=10)
 
-        xgb_score_commercial = self.__xgb_modelling__('Commercial Success XGB', X, Y_commercial, xgb_model)
-        xgb_score_critical = self.__xgb_modelling__('Critical Success XGB', X, Y_critical, xgb_model)
+        rf_score_commercial = self.__rf_modelling__('Commercial Success RF', X, Y_commercial, rf_model_comm)
+        rf_score_critical = self.__rf_modelling__('Critical Success RF', X, Y_critical, rf_model_crit)
+
+        xgb_score_commercial = self.__xgb_modelling__('Commercial Success XGB', X, Y_commercial, xgb_model_comm)
+        xgb_score_critical = self.__xgb_modelling__('Critical Success XGB', X, Y_critical, xgb_model_crit)
 
         self.reportWriter.append_to_report(f"""
 # Model Scores Comparision
@@ -112,6 +124,8 @@ Critical Success XGBoost RMSE: {xgb_score_critical['rmse']:.3f}
 Based on the higher level of scoring of XGBoost on both the models, combined with the fact that it takes lesser time to train, 
 we'll go with XGBoost as our final model to predict our commercial and critical game successes on Steam.
 """)
+
+        return xgb_model_comm, xgb_model_crit, rf_model_comm, rf_model_crit
 
 
     def __rf_modelling__(self, model_name: str, x: pd.DataFrame, y: pd.Series, rf_regressor: RandomForestRegressor):

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from config import USABLE_DATASET_COLUMNS
+from utils.config import USABLE_DATASET_COLUMNS
 from utils.reportwriter import ReportWriter
 
 class PreProcessor:
