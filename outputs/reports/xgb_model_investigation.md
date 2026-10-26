@@ -1,6 +1,6 @@
 # Investigating XGBoost Model
 
-## Top 10 Features
+## Top 20 Features
 Critical Success XGB:
 
 tags_Singleplayer: 17.489%
@@ -17,29 +17,29 @@ tags_Design & Illustration: 1.371%
 ## Top 10 Permutation Importances
             Critical Success XGB:
 
-                                Feature  Importance Mean  Importance Std
-                      tags_Singleplayer            0.280           0.004
-                             tags_Indie            0.274           0.002
-                            tags_Casual            0.179           0.003
-                            tags_Action            0.171           0.003
-                         tags_Adventure            0.163           0.005
-                          tags_Strategy            0.060           0.002
-                        tags_Simulation            0.051           0.002
-                               tags_RPG            0.040           0.001
-                                tags_2D            0.032           0.001
-                                  price            0.019           0.001
-          categories_Steam Achievements            0.014           0.001
-                                tags_3D            0.012           0.000
-              categories_Family Sharing            0.012           0.001
-                 categories_Steam Cloud            0.009           0.001
-              supported_languages_count            0.008           0.000
-                      tags_Free to Play            0.008           0.000
-         categories_Steam Trading Cards            0.008           0.001
-                                tags_VR            0.008           0.000
-                         tags_Utilities            0.007           0.000
-                        tags_Story Rich            0.007           0.000
+                       Feature  Importance Mean  Importance Std
+             tags_Singleplayer            0.280           0.004
+                    tags_Indie            0.274           0.002
+                   tags_Casual            0.179           0.003
+                   tags_Action            0.171           0.003
+                tags_Adventure            0.163           0.005
+                 tags_Strategy            0.060           0.002
+               tags_Simulation            0.051           0.002
+                      tags_RPG            0.040           0.001
+                       tags_2D            0.032           0.001
+                         price            0.019           0.001
+ categories_Steam Achievements            0.014           0.001
+                       tags_3D            0.012           0.000
+     categories_Family Sharing            0.012           0.001
+        categories_Steam Cloud            0.009           0.001
+     supported_languages_count            0.008           0.000
+             tags_Free to Play            0.008           0.000
+categories_Steam Trading Cards            0.008           0.001
+                       tags_VR            0.008           0.000
+                tags_Utilities            0.007           0.000
+               tags_Story Rich            0.007           0.000
 
-## Top 10 Features
+## Top 20 Features
 Commercial Success XGB:
 
 tags_Free to Play: 37.215%

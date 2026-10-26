@@ -31,12 +31,14 @@ class FeatureEngineering:
 
 #Binning prices.
     def bin_prices(self):
+        self.df['price_category'] = np.where(self.df['price'] is 0, 'Free to Play', 'Micro Indie')
         self.df['price_category'] = pd.cut(self.df['price'], bins=list(GAME_PRICE_BIN), labels=list(GAME_PRICE_LABELS))
-        self.df['price_category'] = self.df['price_category'].apply(lambda x: x if isinstance(x, str) else "Micro Indie")
+        self.df['price_category'] = self.df['price_category'].apply(lambda x: x if isinstance(x, str)
+                                                                    else "Micro Indie")
         print('\nAdded price_category')
         print(self.df[['price', 'price_category']].head())
         mlb = MultiLabelBinarizer(classes=GAME_PRICE_LABELS)
-        binarized_array = cast(np.ndarray, mlb.fit_transform(self.df['price_category']))
+        binarized_array = cast(np.ndarray, mlb.fit_transform(self.df['price_category'].apply(lambda x: [x])))
         self.model_saver.save_artifact(mlb, 'bin_prices')
         new_df = pd.DataFrame(binarized_array, columns=mlb.classes_, index=self.df.index).add_prefix(f'{'price_category'}_')
         print(f'{'price_category'} column count: {len(new_df.columns)}')
@@ -47,7 +49,7 @@ class FeatureEngineering:
 
 Prices have been binned on the basis of standard price divisions on Steam. The bins are as given below:
 Free to Play: $0
-Micro Indie: $1.0 - $9.9
+Micro Indie: $0.1 - $9.9
 Standard Tier: $10.0 - $29.9
 Upper Tier: $30.0 - $49.99
 

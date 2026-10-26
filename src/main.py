@@ -78,18 +78,18 @@ def main():
     #eda(df)
 
 #Preprocessing
-    preprocessing(df)
+   # preprocessing(df)
 
 #Feature Engineering
     feature_engineering()
 
 #XGB Model Investigation
-    model_compare = ModelComparision(PROCESSED_DATA_DIR / 'features.csv', report_path=OUTPUT_DIR / 'reports/xgb_model_investigation.md')
-    xgb_model_investigation(model_compare)
+   # model_compare = ModelComparision(PROCESSED_DATA_DIR / 'features.csv', report_path=OUTPUT_DIR / 'reports/xgb_model_investigation.md')
+ #   xgb_model_investigation(model_compare)
 
 #Buildin & Comparing XGB and RF Models
-    model_save = Model_Saver()
-    build_rf_xgb(model_compare, model_save)
+  #  model_save = Model_Saver()
+  #  build_rf_xgb(model_compare, model_save)
     
 
 if __name__ == '__main__':
