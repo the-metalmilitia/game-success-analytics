@@ -1,0 +1,8 @@
+{
+    "price": 19.99,
+    "release_date": "2026-09-15",
+    "genres": ["Action", "Indie"],
+    "categories": ["Single-player", "Steam Achievements"],
+    "tags": ["Action", "Indie", "Singleplayer"],
+    "supported_languages": ["English", "French"]
+}

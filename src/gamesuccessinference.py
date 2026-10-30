@@ -46,24 +46,24 @@ class GameSuccessInference:
 
         price_category = pd.cut([row['price']], bins=list(GAME_PRICE_BIN), labels=list(GAME_PRICE_LABELS))
 
-        if pd.isna(price_category):
-            price_category = 'Micro Indie'
+        if pd.isna(price_category) or isinstance(row['price'], str):
+            price_category = 'MicroIndie'
 
-        price_features = self.bin_prices_encoder.transform([[price_category]])
+        price_features = self.bin_prices_encoder.transform([price_category])
         price_df = pd.DataFrame(price_features, columns=[f'price_category_{label}'
                                                          for label in self.bin_prices_encoder.classes_],)
 
         features = pd.concat([features, price_df], axis=1)
 
-        genres_features = self.genres_encoder.transform([[genres]])
-        categories_features = self.categories_encoder.transform([[categories]])
-        tags_features = self.tags_encoder.transform([[tags]])
+        genres_features = self.genres_encoder.transform([genres])
+        categories_features = self.categories_encoder.transform([categories])
+        tags_features = self.tags_encoder.transform([tags])
         
         genres_df = pd.DataFrame(genres_features, columns=[f'genres_{label}'
                                                            for label in self.genres_encoder.classes_],)
-        categories_df = pd.DataFrame(categories_features, columns=[f'genres_{label}'
+        categories_df = pd.DataFrame(categories_features, columns=[f'categories_{label}'
                                                                    for label in self.categories_encoder.classes_],)
-        tags_df = pd.DataFrame(tags_features, columns=[f'genres_{label}'
+        tags_df = pd.DataFrame(tags_features, columns=[f'tags_{label}'
                                                                            for label in self.tags_encoder.classes_],)
 
         features = pd.concat([features, genres_df, categories_df, tags_df], axis=1)
@@ -79,6 +79,6 @@ class GameSuccessInference:
         critical_prediction = self.critical_model.predict(features)[0]
 
         return {
-            'commercial_prediction': commercial_prediction,
-            'critical_prediction': critical_prediction
+            'commercial': commercial_prediction,
+            'critical': critical_prediction
         }

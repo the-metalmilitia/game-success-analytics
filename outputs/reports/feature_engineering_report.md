@@ -56,3 +56,56 @@ In actual feature importance, these counts seem to take away the work of actual 
 A count of Supported languages however, will be fed in, to see if support of larger number of languages can influence success.
 
 The columns are genres_count, categories_count, tags_count and supported_languages_count.
+
+        
+
+# Encoding strategy
+        
+Certain columns which are labels, viz, genres, categories and tags have been encoded into multiple binary columns
+through Multilabel Binarizer. This results in a pretty large number of final columns, but it's workable and in fact quite required.
+        
+Tags have been encoded with a threshold value, as there are a lot of tags which would blow up the column count.
+So a tag is only encoded if it is found in x number of games or more, x being the threshold value.
+        
+
+
+# Feature Importance
+
+Two Random Forest Regression models are trained to calculate feature importance.
+Both models take all the other values in the dataset except avg_owners and review_score as their X axis features.
+
+Model A takes avg_owners as Y axis, which is what we have to predict for commercial success.
+Model B takes review_score as Y axis, which is to be predicted for critical success.
+
+An R2 accuracy of more than 65 or 70, should be a decent acceptance point.
+
+        
+
+## Model Commercial Success Feature Importance Results
+        Top 10 Features:
+        
+price: 35.620%
+game_age: 31.260%
+tags_Singleplayer: 7.213%
+supported_languages_count: 5.159%
+tags_Action: 2.522%
+tags_Casual: 1.290%
+release_month: 0.811%
+categories_Single-player: 0.682%
+categories_Steam Trading Cards: 0.596%
+categories_Steam Achievements: 0.596%
+        
+
+## Model Critical Success Feature Importance Results
+        Top 10 Features:
+        
+tags_Singleplayer: 25.168%
+game_age: 19.093%
+tags_Action: 8.085%
+tags_Casual: 4.841%
+tags_Adventure: 3.034%
+categories_Steam Achievements: 2.852%
+price: 1.921%
+release_month: 1.484%
+supported_languages_count: 1.407%
+tags_Strategy: 1.376%

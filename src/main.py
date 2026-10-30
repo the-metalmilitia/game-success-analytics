@@ -7,6 +7,9 @@ from eda import EDA
 from feature_engineering import FeatureEngineering
 from utils.model_saver import Model_Saver
 from utils.config import RAW_DATA_DIR, OUTPUT_DIR, PROCESSED_DATA_DIR
+from gamesuccessinference import GameSuccessInference
+import argparse
+import json
 
 XGB_COMM = None
 XGB_CRIT = None
@@ -66,30 +69,55 @@ def build_rf_xgb(model_compare: ModelComparision, model_save: Model_Saver):
                             OUTPUT_DIR/'models/commercial_model.joblib',
                             OUTPUT_DIR/'models/critical_model.joblib')
 
-def main():
 
+def train_model():
     data_loader = DataLoader(RAW_DATA_DIR / 'steam_games.csv')
     df = data_loader.load()
-
+    
     # data_profiler = DataProfiler()
     # data_profiler.profile(df)
-
+    
 # #EDA with visualization and EDA report.
     #eda(df)
-
+    
 #Preprocessing
    # preprocessing(df)
-
+    
 #Feature Engineering
-    feature_engineering()
-
+    # feature_engineering()
+    
 #XGB Model Investigation
-   # model_compare = ModelComparision(PROCESSED_DATA_DIR / 'features.csv', report_path=OUTPUT_DIR / 'reports/xgb_model_investigation.md')
- #   xgb_model_investigation(model_compare)
+    model_compare = ModelComparision(PROCESSED_DATA_DIR / 'features.csv', report_path=OUTPUT_DIR / 'reports/xgb_model_investigation.md')
+    xgb_model_investigation(model_compare)
 
 #Buildin & Comparing XGB and RF Models
-  #  model_save = Model_Saver()
-  #  build_rf_xgb(model_compare, model_save)
+    model_save = Model_Saver()
+    build_rf_xgb(model_compare, model_save)
+
+def predict_new_game(input_path):
+    inference = GameSuccessInference()
+
+    game_dict = dict()
+    with open(input_path, 'r') as file:
+        game_dict = json.load(file)
+        
+    prediction = inference.predict(game_dict)
+    print(f'Commercial Success: {prediction['commercial']}')
+    print(f'Critical Success: {prediction['critical']}')
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-m', '--mode', type=str, help='\'train\' to run through the entire model training, ' \
+    '\'predict\' to predict a new game\'s success fed through a json via --input')
+    parser.add_argument('-i', '--input', type=str, help='new game\'s details json path')
+
+    args = parser.parse_args()
+
+    if args.mode == 'train':
+        train_model()
+    elif args.mode == 'predict':
+        predict_new_game(args.input)
+    
     
 
 if __name__ == '__main__':
